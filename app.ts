@@ -1,16 +1,15 @@
-import express from "express";
-import { graphqlHTTP } from "express-graphql";
-import { schema } from "./schema/schema";
-
+import express from 'express';
+import { ApolloServer, gql } from 'apollo-server-express';
+import { schema } from './schema/schema';
+const PORT = 4000;
 
 const app = express();
 
 
-app.use("/graphql", graphqlHTTP({
-    schema: schema,
-    graphiql: true
-}));
+const server = new ApolloServer({ schema });
+server.applyMiddleware({ app });
 
-app.listen(4000, () => {
-    console.log("Now listening for request on port 4000");
-})
+app.listen({ port: PORT }, () =>
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+)
+
