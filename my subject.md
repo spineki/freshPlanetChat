@@ -3,7 +3,7 @@
 [x] A user can see the list of forums he has joined.  
 [x] A user can create a new forum (and join it automatically)
 [x] A user can see the list of available forum
-[ ] and can join any
+[x] and can join any
 [x] He can also join a forum if he knows the forum id
 
 Once inside a forum, he can:

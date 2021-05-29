@@ -10,7 +10,8 @@ export const typeDefs = gql`
 
   type Mutation {
     createForum(userID: ID!, forumName: String!): Forum
-    joinForum(userID: ID!, forumID: String!): Forum
+    joinForumByID(userID: ID!, forumID: ID!): Forum
+    joinForumByName(userID: ID!, forumName: String!): Forum
   }
 
   type Message {

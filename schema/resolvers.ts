@@ -51,14 +51,36 @@ export const resolvers = {
       return newForum;
     },
 
-    joinForum(
+    joinForumByID(
       _: any,
       { userID, forumID }: { userID: string; forumID: string }
     ) {
-      console.log("== Mutation joinForum");
+      console.log("== Mutation joinForumByID");
 
       // looking for the requested forum
       let forumIndex = forums.findIndex((forum) => forum.id === forumID);
+      if (forums[forumIndex] === undefined) {
+        return null;
+      }
+
+      // verifying if user is already registered
+      if (!forums[forumIndex].userIDs.includes(userID)) {
+        // joining the forum
+        forums[forumIndex].userIDs.push(userID);
+      }
+
+      // returning it allows user to chain query info with forum
+      return forums[forumIndex];
+    },
+
+    joinForumByName(
+      _: any,
+      { userID, forumName }: { userID: string; forumName: string }
+    ) {
+      console.log("== Mutation joinForumByName");
+
+      // looking for the requested forum
+      let forumIndex = forums.findIndex((forum) => forum.name === forumName);
       if (forums[forumIndex] === undefined) {
         return null;
       }
