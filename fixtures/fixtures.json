@@ -1,0 +1,45 @@
+{
+  "forums": [
+    {
+      "id": "1",
+      "name": "forumName1",
+      "userIDs": ["1"]
+    },
+    {
+      "id": "2",
+      "name": "forumName2",
+      "userIDs": ["1", "2"]
+    },
+    {
+      "id": "3",
+      "name": "forumName3",
+      "userIDs": ["1", "2", "3"]
+    }
+  ],
+
+  "users": [
+    {
+      "id": "1",
+      "name": "alice",
+      "image": "/path/to/image/alice"
+    },
+    {
+      "id": "2",
+      "name": "albert",
+      "image": "/path/to/image/albert"
+    },
+    {
+      "id": "3",
+      "name": "aragorn",
+      "image": "/path/to/image/aragorn"
+    }
+  ],
+
+  "messages": [
+    {
+      "id": "1",
+      "text": "message from user 2",
+      "userId": "2"
+    }
+  ]
+}
