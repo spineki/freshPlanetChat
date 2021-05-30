@@ -2,49 +2,87 @@ import { forums, users, messages } from "../fixtures/fixtures.json";
 
 export const resolvers = {
   Query: {
-    forums() {
+    forums(parent: any, args: any, context: { currentUser: any }) {
       console.log(">> Query forums");
+      // A user must be logged to request the list of forums
+      if (!context.currentUser) {
+        return null;
+      }
+
       return forums;
     },
 
-    forum(parent: any, args: {id: string}) {
+    forum(
+      parent: any,
+      args: { id: string },
+      context: { currentUser: { id: string } }
+    ) {
       console.log(">> Query forum ", args.id);
-      return forums.find((forum) => forum.id === args.id);
+      // A user must be logged to request a forum
+      if (!context.currentUser) {
+        return null;
+      }
+
+      // The requested if must match an existing forum
+      const matchingForum = forums.find((forum) => forum.id === args.id);
+      if (matchingForum === undefined) {
+        return null;
+      }
+
+      // the user must be in the forum to have the right to get info from it
+      if (!matchingForum.userIDs.includes(context.currentUser.id)) {
+        return null;
+      }
+
+      return matchingForum;
     },
 
-    user(parent: any, args: { id: string }) {
-      console.log(">> Query user ", args.id);
-      return users.find((user) => user.id === args.id);
-    },
-    messages() {
-      console.log(">> Query messages");
-      return messages;
+    me(parent: any, args: any, context: { currentUser: { id: string } }) {
+      console.log(">> Query me ", context.currentUser);
+      if (!context.currentUser) {
+        return null;
+      }
+
+      return users.find((user) => user.id === context.currentUser.id);
     },
   },
 
   Mutation: {
     createForum(
       _: any,
-      { userID, forumName }: { userID: string; forumName: string }
+      { forumName }: { forumName: string },
+      context: { currentUser: { id: any } }
     ) {
-      console.log("== Mutation createForum", userID, forumName );
+      console.log("== Mutation createForum", forumName);
+
+      if (!context.currentUser) {
+        return null;
+      }
 
       // First, we verify if a forum is having the same name already exists
-      let alreadyExistingForumIndex = forums.findIndex((forum) => forum.name === forumName);
+      const alreadyExistingForumIndex = forums.findIndex(
+        (forum) => forum.name === forumName
+      );
       if (forums[alreadyExistingForumIndex] !== undefined) {
         return null;
       }
 
       // Now we know the forum doesn't exist, we can create a new one
       // we find the max forum id and we do a + 1 to guaranty a whole new id
-      const newForumID = 1 + forums.reduce((maxForumID, currentForum) => Math.max(maxForumID, parseInt(currentForum.id)), parseInt(forums[0].id))
+      const newForumID =
+        1 +
+        forums.reduce(
+          (maxForumID, currentForum) =>
+            Math.max(maxForumID, parseInt(currentForum.id)),
+          parseInt(forums[0].id)
+        );
 
       const newForum = {
         id: newForumID.toString(),
-        name : forumName,
-        userIDs: [userID],
-        messages: []
-      }
+        name: forumName,
+        userIDs: [context.currentUser.id],
+        messages: [],
+      };
 
       forums.push(newForum);
 
@@ -53,20 +91,25 @@ export const resolvers = {
 
     joinForumByID(
       _: any,
-      { userID, forumID }: { userID: string; forumID: string }
+      { forumID }: { forumID: string },
+      context: { currentUser: { id: string } }
     ) {
-      console.log("== Mutation joinForumByID");
+      console.log("== Mutation joinForumByID", forumID);
+
+      if (!context.currentUser) {
+        return null;
+      }
 
       // looking for the requested forum
-      let forumIndex = forums.findIndex((forum) => forum.id === forumID);
+      const forumIndex = forums.findIndex((forum) => forum.id === forumID);
       if (forums[forumIndex] === undefined) {
         return null;
       }
 
       // verifying if user is already registered
-      if (!forums[forumIndex].userIDs.includes(userID)) {
+      if (!forums[forumIndex].userIDs.includes(context.currentUser.id)) {
         // joining the forum
-        forums[forumIndex].userIDs.push(userID);
+        forums[forumIndex].userIDs.push(context.currentUser.id);
       }
 
       // returning it allows user to chain query info with forum
@@ -75,39 +118,119 @@ export const resolvers = {
 
     joinForumByName(
       _: any,
-      { userID, forumName }: { userID: string; forumName: string }
+      { forumName }: { forumName: string },
+      context: { currentUser: { id: string } }
     ) {
       console.log("== Mutation joinForumByName");
 
+      if (!context.currentUser) {
+        return null;
+      }
+
       // looking for the requested forum
-      let forumIndex = forums.findIndex((forum) => forum.name === forumName);
+      const forumIndex = forums.findIndex((forum) => forum.name === forumName);
       if (forums[forumIndex] === undefined) {
         return null;
       }
 
       // verifying if user is already registered
-      if (!forums[forumIndex].userIDs.includes(userID)) {
+      if (!forums[forumIndex].userIDs.includes(context.currentUser.id)) {
         // joining the forum
-        forums[forumIndex].userIDs.push(userID);
+        forums[forumIndex].userIDs.push(context.currentUser.id);
       }
 
       // returning it allows user to chain query info with forum
       return forums[forumIndex];
     },
+
+    createMessage(
+      _: any,
+      {
+        input: { text, forumID, sendingTime },
+      }: { input: { text: string; forumID: string; sendingTime: string } },
+      context: { currentUser: { id: string } }
+    ) {
+      console.log("== Mutation createMessage");
+
+      if (!context.currentUser) {
+        return null;
+      }
+
+      // first we look in the "database to find the sender"
+      const sender = users.find((user) => user.id === context.currentUser.id);
+      if (sender === undefined) {
+        return null;
+      }
+
+      // then, we verify if they have the right to send a message in the forum
+      // forum existence verification
+      const forum = forums.find((forum) => forum.id === forumID);
+      if (forum === undefined) {
+        return null;
+      }
+
+      // user in forum verification
+      if (!forum.userIDs.includes(context.currentUser.id)) {
+        return null;
+      }
+
+      const newMessage = {
+        text: text,
+        senderName: sender.name,
+        senderPicture: sender.image,
+        forumID: forumID,
+        sendingTime: sendingTime,
+      };
+
+      // saving to "database"
+      messages.push(newMessage);
+
+      return newMessage;
+    },
   },
 
   // Misc Resolvers
   Forum: {
-    users(parent: { userIDs: any }, args: any) {
-      console.log("Forum => users : parent", parent);
+    users(
+      parent: { userIDs: any },
+      args: any,
+      context: { currentUser: { id: any } }
+    ) {
+      console.log("Forum => users : parent", parent, context.currentUser.id);
+
+      // Here, we return the list of users of this forum
+
+      // However, we don't want strangers to have acces to the list of users
+      if (
+        !context.currentUser ||
+        !parent.userIDs.includes(context.currentUser.id)
+      ) {
+        return null;
+      }
+
       return users.filter((user) => parent.userIDs.includes(user.id));
+    },
+
+    messages(parent: { id: string }) {
+      return messages.filter((message) => message.forumID === parent.id);
     },
   },
 
   User: {
-    forums(parent: { id: string }, args: any) {
+    forums(
+      parent: { id: string },
+      args: any,
+      context: { currentUser: { id: string } }
+    ) {
       console.log("User => forums : parent", parent);
-      return forums.filter((forum) => forum.userIDs.includes(parent.id));
+      if (!context.currentUser) {
+        return null;
+      }
+
+      // Here, we only want to return the list of forums user joined
+      return forums.filter((forum) =>
+        forum.userIDs.includes(context.currentUser.id)
+      );
     },
   },
 };

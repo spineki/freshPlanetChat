@@ -20,26 +20,42 @@
   "users": [
     {
       "id": "1",
-      "name": "alice",
-      "image": "/path/to/image/alice"
+      "name": "userName1",
+      "image": "/path/to/image/user1"
     },
     {
       "id": "2",
-      "name": "albert",
-      "image": "/path/to/image/albert"
+      "name": "userName2",
+      "image": "/path/to/image/user2"
     },
     {
       "id": "3",
-      "name": "aragorn",
-      "image": "/path/to/image/aragorn"
+      "name": "userName3",
+      "image": "/path/to/image/user3"
     }
   ],
 
   "messages": [
     {
-      "id": "1",
-      "text": "message from user 2",
-      "userId": "2"
+      "text": "message from user1 to forum 3",
+      "senderName": "userName1",
+      "senderPicture": "/path/to/image/user1",
+      "forumID": "3",
+      "sendingTime": "15H45"
+    },
+    {
+      "text": "message from user2 to forum 2",
+      "senderName": "userName2",
+      "senderPicture": "/path/to/image/user2",
+      "forumID": "2",
+      "sendingTime": "15H50"
+    },
+    {
+      "text": "message from user2 to forum 3",
+      "senderName": "userName2",
+      "senderPicture": "/path/to/image/user2",
+      "forumID": "3",
+      "sendingTime": "5H55"
     }
   ]
 }
