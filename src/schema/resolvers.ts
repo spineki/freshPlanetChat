@@ -78,7 +78,7 @@ export const resolvers = {
   Mutation: {
     createForum(
       _parent: unknown,
-      { forumName }: { forumName: string },
+      { input: { forumName } }: { input: { forumName: string } },
       context: { currentUser: { id: string } }
     ): ForumType {
       console.log("== Mutation createForum", forumName);
@@ -119,7 +119,7 @@ export const resolvers = {
 
     joinForumByID(
       _parent: unknown,
-      { forumID }: { forumID: string },
+      { input: { forumID } }: { input: { forumID: string } },
       context: { currentUser: { id: string } }
     ): ForumType {
       console.log("== Mutation joinForumByID", forumID);
@@ -146,7 +146,7 @@ export const resolvers = {
 
     joinForumByName(
       _parent: unknown,
-      { forumName }: { forumName: string },
+      { input: { forumName } }: { input: { forumName: string } },
       context: { currentUser: { id: string } }
     ): ForumType {
       console.log("== Mutation joinForumByName");
@@ -255,10 +255,8 @@ export const resolvers = {
 
       // According to the specs, messages should be returned in the newest -> oldest order
       // Messages are stored in our "database" in receiving order so no need to sort them.
-
-      return forum.messages.sort((a, b) =>
-        a.sendingTime < b.sendingTime ? -1 : 1
-      );
+      // so we just have to revert them
+      return forum.messages.reverse();
     },
   },
 

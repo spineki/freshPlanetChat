@@ -113,7 +113,7 @@ describe("A user can join any available forums", () => {
   test("User 2 joins forums 1", async () => {
     const JOIN_FORUM_ONE = gql`
       mutation {
-        joinForumByName(forumName: "forumName1") {
+        joinForumByName(input: { forumName: "forumName1" }) {
           name
         }
       }
@@ -180,7 +180,7 @@ describe("A user can join a forum if he knows the forum id", () => {
   test("User 2 joins forums 1", async () => {
     const JOIN_FORUM_ONE = gql`
       mutation {
-        joinForumByID(forumID: "1") {
+        joinForumByID(input: { forumID: "1" }) {
           name
         }
       }
@@ -248,7 +248,7 @@ describe("A user can create a new forum (and join it automatically)", () => {
   test("user 2 creates forum 4", async () => {
     const CREATE_FORUM = gql`
       mutation {
-        createForum(forumName: "forumName4") {
+        createForum(input: { forumName: "forumName4" }) {
           name
         }
       }
@@ -347,12 +347,12 @@ describe("Once in a forum, a user can see the list of previous messages", () => 
     expect(data.forum).toEqual({
       messages: [
         {
-          text: "message from user2 to forum 3",
-          sendingTime: "2021-05-31T05:55:00.000Z",
-        },
-        {
           text: "message from user1 to forum 3",
           sendingTime: "2021-05-31T05:57:00.000Z",
+        },
+        {
+          text: "message from user2 to forum 3",
+          sendingTime: "2021-05-31T05:55:00.000Z",
         },
       ],
     });
@@ -464,20 +464,20 @@ describe("Once in a forum, a user can post a message in the forum", () => {
     expect(data.forum).toEqual({
       messages: [
         {
-          text: "message from user2 to forum 3",
-          sender: {
-            name: "userName2",
-            image: "/path/to/image/user2",
-          },
-          sendingTime: "2021-05-31T05:55:00.000Z",
-        },
-        {
           text: "message from user1 to forum 3",
           sender: {
             name: "userName1",
             image: "/path/to/image/user1",
           },
           sendingTime: "2021-05-31T05:57:00.000Z",
+        },
+        {
+          text: "message from user2 to forum 3",
+          sender: {
+            name: "userName2",
+            image: "/path/to/image/user2",
+          },
+          sendingTime: "2021-05-31T05:55:00.000Z",
         },
       ],
     });
@@ -517,6 +517,13 @@ describe("Once in a forum, a user can post a message in the forum", () => {
     expect(data.forum).toEqual({
       messages: [
         {
+          text: "A whole new message",
+          sender: {
+            name: "userName2",
+            image: "/path/to/image/user2",
+          },
+        },
+        {
           text: "message from user2 to forum 3",
           sender: {
             name: "userName2",
@@ -528,13 +535,6 @@ describe("Once in a forum, a user can post a message in the forum", () => {
           sender: {
             name: "userName1",
             image: "/path/to/image/user1",
-          },
-        },
-        {
-          text: "A whole new message",
-          sender: {
-            name: "userName2",
-            image: "/path/to/image/user2",
           },
         },
       ],

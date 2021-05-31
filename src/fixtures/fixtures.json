@@ -24,14 +24,14 @@
       "memberIDs": ["1", "2", "3"],
       "messages": [
         {
-          "text": "message from user1 to forum 3",
-          "senderID": "1",
-          "sendingTime": "2021-05-31T05:57:00.000Z"
-        },
-        {
           "text": "message from user2 to forum 3",
           "senderID": "2",
           "sendingTime": "2021-05-31T05:55:00.000Z"
+        },
+        {
+          "text": "message from user1 to forum 3",
+          "senderID": "1",
+          "sendingTime": "2021-05-31T05:57:00.000Z"
         }
       ]
     }
