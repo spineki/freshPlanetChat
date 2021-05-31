@@ -364,7 +364,7 @@ describe("Once in a forum, a user can see the name and picture of the members of
     const GET_ALL_AVAILABLE_USERS = gql`
       query {
         forum(id: "1") {
-          users {
+          members {
             name
             image
           }
@@ -382,7 +382,7 @@ describe("Once in a forum, a user can see the name and picture of the members of
     const GET_ALL_AVAILABLE_USERS = gql`
       query {
         forum(id: "2") {
-          users {
+          members {
             name
             image
           }
@@ -394,7 +394,7 @@ describe("Once in a forum, a user can see the name and picture of the members of
 
     // we expect null, because user 2 is not in forum 1
     expect(data.forum).toEqual({
-      users: [
+      members: [
         {
           name: "userName1",
           image: "/path/to/image/user1",
@@ -411,7 +411,7 @@ describe("Once in a forum, a user can see the name and picture of the members of
     const GET_ALL_AVAILABLE_USERS = gql`
       query {
         forum(id: "3") {
-          users {
+          members {
             name
             image
           }
@@ -423,7 +423,7 @@ describe("Once in a forum, a user can see the name and picture of the members of
 
     // we expect null, because user 2 is not in forum 1
     expect(data.forum).toEqual({
-      users: [
+      members: [
         {
           name: "userName1",
           image: "/path/to/image/user1",

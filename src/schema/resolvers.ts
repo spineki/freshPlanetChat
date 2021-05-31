@@ -10,7 +10,7 @@ type MessageType = {
 type ForumType = {
   id: string;
   name: string;
-  userIDs: Array<string>;
+  memberIDs: Array<string>;
   messages: Array<MessageType>;
 };
 
@@ -54,7 +54,7 @@ export const resolvers = {
       }
 
       // the user must be in the forum to have the right to get info from it
-      if (!matchingForum.userIDs.includes(context.currentUser.id)) {
+      if (!matchingForum.memberIDs.includes(context.currentUser.id)) {
         return null;
       }
 
@@ -108,7 +108,7 @@ export const resolvers = {
       const newForum: ForumType = {
         id: newForumID.toString(),
         name: forumName,
-        userIDs: [context.currentUser.id],
+        memberIDs: [context.currentUser.id],
         messages: [],
       };
 
@@ -135,9 +135,9 @@ export const resolvers = {
       }
 
       // verifying if user is already registered
-      if (!forums[forumIndex].userIDs.includes(context.currentUser.id)) {
+      if (!forums[forumIndex].memberIDs.includes(context.currentUser.id)) {
         // joining the forum
-        forums[forumIndex].userIDs.push(context.currentUser.id);
+        forums[forumIndex].memberIDs.push(context.currentUser.id);
       }
 
       // returning it allows user to chain query info with forum
@@ -162,9 +162,9 @@ export const resolvers = {
       }
 
       // verifying if user is already registered
-      if (!forums[forumIndex].userIDs.includes(context.currentUser.id)) {
+      if (!forums[forumIndex].memberIDs.includes(context.currentUser.id)) {
         // joining the forum
-        forums[forumIndex].userIDs.push(context.currentUser.id);
+        forums[forumIndex].memberIDs.push(context.currentUser.id);
       }
 
       // returning it allows user to chain query info with forum
@@ -192,7 +192,7 @@ export const resolvers = {
       }
 
       // user in forum verification
-      if (!forum.userIDs.includes(context.currentUser.id)) {
+      if (!forum.memberIDs.includes(context.currentUser.id)) {
         return null;
       }
 
@@ -211,9 +211,9 @@ export const resolvers = {
 
   // Misc Resolvers
   Forum: {
-    users(
-      parent: { userIDs: Array<string> },
-      args: unknown,
+    members(
+      parent: { memberIDs: Array<string> },
+      _args: unknown,
       context: { currentUser: { id: string } }
     ): Array<UserType> {
       console.log("Forum => users : parent", parent, context.currentUser.id);
@@ -223,17 +223,17 @@ export const resolvers = {
       // However, we don't want strangers to have acces to the list of users
       if (
         !context.currentUser ||
-        !parent.userIDs.includes(context.currentUser.id)
+        !parent.memberIDs.includes(context.currentUser.id)
       ) {
         return null;
       }
 
-      return users.filter((user) => parent.userIDs.includes(user.id));
+      return users.filter((user) => parent.memberIDs.includes(user.id));
     },
 
     messages(
-      parent: { id: string; userIDs: Array<string> },
-      args: unknown,
+      parent: { id: string; memberIDs: Array<string> },
+      _args: unknown,
       context: { currentUser: { id: string } }
     ): Array<MessageType> {
       console.log("Forum Message");
@@ -243,7 +243,7 @@ export const resolvers = {
       // However, we don't want strangers to have acces to the list of users
       if (
         !context.currentUser ||
-        !parent.userIDs.includes(context.currentUser.id)
+        !parent.memberIDs.includes(context.currentUser.id)
       ) {
         return null;
       }
@@ -255,7 +255,10 @@ export const resolvers = {
 
       // According to the specs, messages should be returned in the newest -> oldest order
       // Messages are stored in our "database" in receiving order so no need to sort them.
-      return forum.messages.sort();
+
+      return forum.messages.sort((a, b) =>
+        a.sendingTime < b.sendingTime ? -1 : 1
+      );
     },
   },
 
@@ -273,7 +276,7 @@ export const resolvers = {
 
       // Here, we only want to return the list of forums user joined
       return forums.filter((forum) =>
-        forum.userIDs.includes(context.currentUser.id)
+        forum.memberIDs.includes(context.currentUser.id)
       );
     },
   },

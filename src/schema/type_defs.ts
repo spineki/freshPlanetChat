@@ -36,7 +36,7 @@ export const typeDefs = gql`
   type Forum {
     id: ID!
     name: String!
-    users: [User]!
+    members: [User]!
     messages: [Message]!
   }
 `;

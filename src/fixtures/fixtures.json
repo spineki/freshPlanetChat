@@ -3,13 +3,13 @@
     {
       "id": "1",
       "name": "forumName1",
-      "userIDs": ["1"],
+      "memberIDs": ["1"],
       "messages": []
     },
     {
       "id": "2",
       "name": "forumName2",
-      "userIDs": ["1", "2"],
+      "memberIDs": ["1", "2"],
       "messages": [
         {
           "text": "message from user2 to forum 2",
@@ -21,7 +21,7 @@
     {
       "id": "3",
       "name": "forumName3",
-      "userIDs": ["1", "2", "3"],
+      "memberIDs": ["1", "2", "3"],
       "messages": [
         {
           "text": "message from user1 to forum 3",
