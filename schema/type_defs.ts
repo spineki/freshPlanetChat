@@ -1,6 +1,8 @@
 import { gql } from "apollo-server-express";
 
 export const typeDefs = gql`
+  scalar DateTime
+
   type Query {
     forums: [Forum]!
     forum(id: ID!): Forum
@@ -17,7 +19,7 @@ export const typeDefs = gql`
   input MessageInput {
     text: String!
     forumID: String!
-    sendingTime: String!
+    sendingTime: DateTime!
   }
 
   type Message {

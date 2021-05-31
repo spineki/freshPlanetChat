@@ -1,3 +1,4 @@
+import { GraphQLDateTime } from "graphql-scalars";
 import { forums, users, messages } from "../fixtures/fixtures.json";
 
 export const resolvers = {
@@ -147,7 +148,7 @@ export const resolvers = {
       _: any,
       {
         input: { text, forumID, sendingTime },
-      }: { input: { text: string; forumID: string; sendingTime: string } },
+      }: { input: { text: string; forumID: string; sendingTime: number } },
       context: { currentUser: { id: string } }
     ) {
       console.log("== Mutation createMessage");
@@ -174,12 +175,19 @@ export const resolvers = {
         return null;
       }
 
+      // converting date to unix time in second: This choice allows:
+      // - Less space taken in database
+      // - Faster and simpler sorting algorithm
+      const unixSendingTime = parseInt(
+        (new Date(sendingTime).getTime() / 1000).toFixed(0)
+      );
+
       const newMessage = {
         text: text,
         senderName: sender.name,
         senderPicture: sender.image,
         forumID: forumID,
-        sendingTime: sendingTime,
+        sendingTime: unixSendingTime,
       };
 
       // saving to "database"
@@ -212,7 +220,24 @@ export const resolvers = {
     },
 
     messages(parent: { id: string }) {
-      return messages.filter((message) => message.forumID === parent.id);
+      console.log("Forum Message");
+
+      // According to the specs, messages should be returned in the newest -> oldest order
+      // Messages are stored in the database in unix time, so we can just sort them this way
+      const sortedMessage = [
+        ...messages.filter((message) => message.forumID === parent.id),
+      ].sort((a, b) => a.sendingTime - b.sendingTime);
+
+      // If dateTimes were stored with string, I would have needed Schwartzian transform
+      // not to spend too much time in sort, converting strings back to Date object to be able to compare them.
+
+      // However, I made the assumption that clients want Date as strings ISO 8601 compliant
+      return sortedMessage.map((message) => {
+        return {
+          ...message,
+          sendingTime: new Date(message.sendingTime * 1000).toISOString(),
+        };
+      });
     },
   },
 
@@ -233,4 +258,7 @@ export const resolvers = {
       );
     },
   },
+
+  // Example: 2021-05-31T19:08:12+00:00
+  DateTime: GraphQLDateTime,
 };

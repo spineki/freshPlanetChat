@@ -332,7 +332,7 @@ describe("Once in a forum, a user can see the list of previous messages", () => 
         {
           senderName: "userName2",
           senderPicture: "/path/to/image/user2",
-          sendingTime: "15H50",
+          sendingTime: "2020-12-09T16:09:50.000Z",
           text: "message from user2 to forum 2",
         },
       ],
@@ -357,16 +357,16 @@ describe("Once in a forum, a user can see the list of previous messages", () => 
     expect(data.forum).toEqual({
       messages: [
         {
-          senderName: "userName1",
-          senderPicture: "/path/to/image/user1",
-          sendingTime: "15H45",
-          text: "message from user1 to forum 3",
-        },
-        {
           senderName: "userName2",
           senderPicture: "/path/to/image/user2",
-          sendingTime: "5H55",
+          sendingTime: "2020-12-09T16:05:55.000Z",
           text: "message from user2 to forum 3",
+        },
+        {
+          senderName: "userName1",
+          senderPicture: "/path/to/image/user1",
+          sendingTime: "2020-12-09T16:09:53.000Z",
+          text: "message from user1 to forum 3",
         },
       ],
     });
@@ -476,16 +476,16 @@ describe("Once in a forum, a user can post a message in the forum", () => {
     expect(data.forum).toEqual({
       messages: [
         {
-          senderName: "userName1",
-          senderPicture: "/path/to/image/user1",
-          sendingTime: "15H45",
-          text: "message from user1 to forum 3",
-        },
-        {
           senderName: "userName2",
           senderPicture: "/path/to/image/user2",
-          sendingTime: "5H55",
+          sendingTime: "2020-12-09T16:05:55.000Z",
           text: "message from user2 to forum 3",
+        },
+        {
+          senderName: "userName1",
+          senderPicture: "/path/to/image/user1",
+          sendingTime: "2020-12-09T16:09:53.000Z",
+          text: "message from user1 to forum 3",
         },
       ],
     });
@@ -498,7 +498,7 @@ describe("Once in a forum, a user can post a message in the forum", () => {
           input: {
             text: "A whole new message"
             forumID: "3"
-            sendingTime: "3H45"
+            sendingTime: "2020-12-09T16:09:54.000Z"
           }
         ) {
           text
@@ -512,7 +512,7 @@ describe("Once in a forum, a user can post a message in the forum", () => {
     });
   });
 
-  test("The new message is in for forum 3", async () => {
+  test("The new message is in forum 3", async () => {
     const GET_ALL_AVAILABLE_MESSAGES = gql`
       query {
         forum(id: "3") {
@@ -530,21 +530,21 @@ describe("Once in a forum, a user can post a message in the forum", () => {
     expect(data.forum).toEqual({
       messages: [
         {
-          senderName: "userName1",
-          senderPicture: "/path/to/image/user1",
-          sendingTime: "15H45",
-          text: "message from user1 to forum 3",
-        },
-        {
           senderName: "userName2",
           senderPicture: "/path/to/image/user2",
-          sendingTime: "5H55",
+          sendingTime: "2020-12-09T16:05:55.000Z",
           text: "message from user2 to forum 3",
+        },
+        {
+          senderName: "userName1",
+          senderPicture: "/path/to/image/user1",
+          sendingTime: "2020-12-09T16:09:53.000Z",
+          text: "message from user1 to forum 3",
         },
         {
           text: "A whole new message",
           senderName: "userName2",
-          sendingTime: "3H45",
+          sendingTime: "2020-12-09T16:09:54.000Z",
           senderPicture: "/path/to/image/user2",
         },
       ],

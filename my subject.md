@@ -8,9 +8,9 @@
 
 Once inside a forum, he can:
 
-[ ] see the list of previous messages, ordered by most recent. To be displayed in our client, a message should at least have a text, a sending time and name/picture of the sender
-[ ] see the name and picture of the members of the forum
-[ ] post a message in the forum
+[x] see the list of previous messages, ordered by most recent. To be displayed in our client, a message should at least have a text, a sending time and name/picture of the sender
+[x] see the name and picture of the members of the forum
+[x] post a message in the forum
 
 ### Specs
 
