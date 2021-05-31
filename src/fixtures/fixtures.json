@@ -38,22 +38,19 @@
   "messages": [
     {
       "text": "message from user1 to forum 3",
-      "senderName": "userName1",
-      "senderPicture": "/path/to/image/user1",
+      "senderID" : "1",
       "forumID": "3",
       "sendingTime": 1607530193
     },
     {
       "text": "message from user2 to forum 2",
-      "senderName": "userName2",
-      "senderPicture": "/path/to/image/user2",
+      "senderID" : "2",
       "forumID": "2",
       "sendingTime": 1607530190
     },
     {
       "text": "message from user2 to forum 3",
-      "senderName": "userName2",
-      "senderPicture": "/path/to/image/user2",
+      "senderID" : "2",
       "forumID": "3",
       "sendingTime": 1607529955
     }

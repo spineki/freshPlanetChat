@@ -298,9 +298,7 @@ describe("Once in a forum, a user can see the list of previous messages", () => 
         forum(id: "1") {
           messages {
             text
-            senderName
             sendingTime
-            senderPicture
           }
         }
       }
@@ -318,9 +316,7 @@ describe("Once in a forum, a user can see the list of previous messages", () => 
         forum(id: "2") {
           messages {
             text
-            senderName
             sendingTime
-            senderPicture
           }
         }
       }
@@ -330,8 +326,6 @@ describe("Once in a forum, a user can see the list of previous messages", () => 
     expect(data.forum).toEqual({
       messages: [
         {
-          senderName: "userName2",
-          senderPicture: "/path/to/image/user2",
           sendingTime: "2020-12-09T16:09:50.000Z",
           text: "message from user2 to forum 2",
         },
@@ -345,9 +339,7 @@ describe("Once in a forum, a user can see the list of previous messages", () => 
         forum(id: "3") {
           messages {
             text
-            senderName
             sendingTime
-            senderPicture
           }
         }
       }
@@ -357,14 +349,10 @@ describe("Once in a forum, a user can see the list of previous messages", () => 
     expect(data.forum).toEqual({
       messages: [
         {
-          senderName: "userName2",
-          senderPicture: "/path/to/image/user2",
           sendingTime: "2020-12-09T16:05:55.000Z",
           text: "message from user2 to forum 3",
         },
         {
-          senderName: "userName1",
-          senderPicture: "/path/to/image/user1",
           sendingTime: "2020-12-09T16:09:53.000Z",
           text: "message from user1 to forum 3",
         },
@@ -464,9 +452,10 @@ describe("Once in a forum, a user can post a message in the forum", () => {
         forum(id: "3") {
           messages {
             text
-            senderName
-            sendingTime
-            senderPicture
+            sender {
+              name
+              image
+            }
           }
         }
       }
@@ -476,16 +465,18 @@ describe("Once in a forum, a user can post a message in the forum", () => {
     expect(data.forum).toEqual({
       messages: [
         {
-          senderName: "userName2",
-          senderPicture: "/path/to/image/user2",
-          sendingTime: "2020-12-09T16:05:55.000Z",
           text: "message from user2 to forum 3",
+          sender: {
+            name: "userName2",
+            image: "/path/to/image/user2",
+          },
         },
         {
-          senderName: "userName1",
-          senderPicture: "/path/to/image/user1",
-          sendingTime: "2020-12-09T16:09:53.000Z",
           text: "message from user1 to forum 3",
+          sender: {
+            name: "userName1",
+            image: "/path/to/image/user1",
+          },
         },
       ],
     });
@@ -518,9 +509,10 @@ describe("Once in a forum, a user can post a message in the forum", () => {
         forum(id: "3") {
           messages {
             text
-            senderName
-            sendingTime
-            senderPicture
+            sender {
+              name
+              image
+            }
           }
         }
       }
@@ -530,22 +522,25 @@ describe("Once in a forum, a user can post a message in the forum", () => {
     expect(data.forum).toEqual({
       messages: [
         {
-          senderName: "userName2",
-          senderPicture: "/path/to/image/user2",
-          sendingTime: "2020-12-09T16:05:55.000Z",
           text: "message from user2 to forum 3",
+          sender: {
+            name: "userName2",
+            image: "/path/to/image/user2",
+          },
         },
         {
-          senderName: "userName1",
-          senderPicture: "/path/to/image/user1",
-          sendingTime: "2020-12-09T16:09:53.000Z",
           text: "message from user1 to forum 3",
+          sender: {
+            name: "userName1",
+            image: "/path/to/image/user1",
+          },
         },
         {
           text: "A whole new message",
-          senderName: "userName2",
-          sendingTime: "2020-12-09T16:09:54.000Z",
-          senderPicture: "/path/to/image/user2",
+          sender: {
+            name: "userName2",
+            image: "/path/to/image/user2",
+          },
         },
       ],
     });

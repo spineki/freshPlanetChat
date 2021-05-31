@@ -24,8 +24,7 @@ export const typeDefs = gql`
 
   type Message {
     text: String!
-    senderName: String!
-    senderPicture: String!
+    sender: User!
     forumID: String!
     sendingTime: String!
   }

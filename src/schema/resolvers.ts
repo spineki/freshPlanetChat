@@ -157,12 +157,6 @@ export const resolvers = {
         return null;
       }
 
-      // first we look in the "database to find the sender"
-      const sender = users.find((user) => user.id === context.currentUser.id);
-      if (sender === undefined) {
-        return null;
-      }
-
       // then, we verify if they have the right to send a message in the forum
       // forum existence verification
       const forum = forums.find((forum) => forum.id === forumID);
@@ -184,8 +178,7 @@ export const resolvers = {
 
       const newMessage = {
         text: text,
-        senderName: sender.name,
-        senderPicture: sender.image,
+        senderID: context.currentUser.id,
         forumID: forumID,
         sendingTime: unixSendingTime,
       };
@@ -200,7 +193,7 @@ export const resolvers = {
   // Misc Resolvers
   Forum: {
     users(
-      parent: { userIDs: any },
+      parent: { userIDs: Array<string> },
       args: any,
       context: { currentUser: { id: any } }
     ) {
@@ -219,8 +212,22 @@ export const resolvers = {
       return users.filter((user) => parent.userIDs.includes(user.id));
     },
 
-    messages(parent: { id: string }) {
+    messages(
+      parent: { id: string; userIDs: Array<string> },
+      args: any,
+      context: { currentUser: { id: any } }
+    ) {
       console.log("Forum Message");
+
+      // Here, we return the list of messages of this forum
+
+      // However, we don't want strangers to have acces to the list of users
+      if (
+        !context.currentUser ||
+        !parent.userIDs.includes(context.currentUser.id)
+      ) {
+        return null;
+      }
 
       // According to the specs, messages should be returned in the newest -> oldest order
       // Messages are stored in the database in unix time, so we can just sort them this way
@@ -248,7 +255,8 @@ export const resolvers = {
       context: { currentUser: { id: string } }
     ) {
       console.log("User => forums : parent", parent);
-      if (!context.currentUser) {
+      // A user can have access to forums only he targets himself
+      if (!context.currentUser || parent.id !== context.currentUser.id) {
         return null;
       }
 
@@ -256,6 +264,14 @@ export const resolvers = {
       return forums.filter((forum) =>
         forum.userIDs.includes(context.currentUser.id)
       );
+    },
+  },
+
+  Message: {
+    sender(parent: { senderID: string }, args: any, context: any) {
+      console.log("Message sender");
+
+      return users.find((user) => user.id === parent.senderID);
     },
   },
 
