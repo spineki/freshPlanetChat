@@ -4,11 +4,11 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "demon": "ts-node-dev app.ts",
+    "demon": "ts-node-dev src/app.ts",
     "start": "tsc && node dist/app.js",
     "test": "jest",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
-    "pretty": "prettier --write ."
+    "pretty": "prettier --write src/*"
   },
   "author": "",
   "license": "ISC",

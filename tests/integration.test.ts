@@ -4,9 +4,9 @@
 
 import { ApolloServer, gql } from "apollo-server-express";
 import { createTestClient } from "apollo-server-testing";
-import { resolvers } from "../schema/resolvers";
-import { typeDefs } from "../schema/type_defs";
-import fixtures from "../fixtures/fixtures.json";
+import { resolvers } from "../src/schema/resolvers";
+import { typeDefs } from "../src/schema/type_defs";
+import fixtures from "../src/fixtures/fixtures.json";
 
 /**
  * A function to deep copy any given object
