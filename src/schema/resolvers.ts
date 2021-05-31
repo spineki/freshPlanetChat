@@ -1,5 +1,5 @@
 import { GraphQLDateTime } from "graphql-scalars";
-import { forums, users, messages } from "../fixtures/fixtures.json";
+import { forums, users } from "../fixtures/fixtures.json";
 
 export const resolvers = {
   Query: {
@@ -179,12 +179,11 @@ export const resolvers = {
       const newMessage = {
         text: text,
         senderID: context.currentUser.id,
-        forumID: forumID,
         sendingTime: unixSendingTime,
       };
 
       // saving to "database"
-      messages.push(newMessage);
+      forum.messages.push(newMessage);
 
       return newMessage;
     },
@@ -229,11 +228,16 @@ export const resolvers = {
         return null;
       }
 
+      const forum = forums.find((forum) => forum.id === parent.id);
+      if (forum === undefined) {
+        return null;
+      }
+
       // According to the specs, messages should be returned in the newest -> oldest order
       // Messages are stored in the database in unix time, so we can just sort them this way
-      const sortedMessage = [
-        ...messages.filter((message) => message.forumID === parent.id),
-      ].sort((a, b) => a.sendingTime - b.sendingTime);
+      const sortedMessage = forum.messages.sort(
+        (a, b) => a.sendingTime - b.sendingTime
+      );
 
       // If dateTimes were stored with string, I would have needed Schwartzian transform
       // not to spend too much time in sort, converting strings back to Date object to be able to compare them.
@@ -270,7 +274,6 @@ export const resolvers = {
   Message: {
     sender(parent: { senderID: string }, args: any, context: any) {
       console.log("Message sender");
-
       return users.find((user) => user.id === parent.senderID);
     },
   },

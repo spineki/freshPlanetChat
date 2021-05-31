@@ -25,7 +25,6 @@ export const typeDefs = gql`
   type Message {
     text: String!
     sender: User!
-    forumID: String!
     sendingTime: String!
   }
 

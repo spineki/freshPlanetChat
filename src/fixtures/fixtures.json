@@ -3,17 +3,38 @@
     {
       "id": "1",
       "name": "forumName1",
-      "userIDs": ["1"]
+      "userIDs": ["1"],
+      "messages": []
     },
     {
       "id": "2",
       "name": "forumName2",
-      "userIDs": ["1", "2"]
+      "userIDs": ["1", "2"],
+      "messages": [
+        {
+          "text": "message from user2 to forum 2",
+          "senderID": "2",
+          "sendingTime": 1607530190
+        }
+      ]
     },
     {
       "id": "3",
       "name": "forumName3",
-      "userIDs": ["1", "2", "3"]
+      "userIDs": ["1", "2", "3"],
+      "messages": [
+        {
+          "text": "message from user1 to forum 3",
+          "senderID": "1",
+          "sendingTime": 1607530193
+        },
+
+        {
+          "text": "message from user2 to forum 3",
+          "senderID": "2",
+          "sendingTime": 1607529955
+        }
+      ]
     }
   ],
 
@@ -32,27 +53,6 @@
       "id": "3",
       "name": "userName3",
       "image": "/path/to/image/user3"
-    }
-  ],
-
-  "messages": [
-    {
-      "text": "message from user1 to forum 3",
-      "senderID" : "1",
-      "forumID": "3",
-      "sendingTime": 1607530193
-    },
-    {
-      "text": "message from user2 to forum 2",
-      "senderID" : "2",
-      "forumID": "2",
-      "sendingTime": 1607530190
-    },
-    {
-      "text": "message from user2 to forum 3",
-      "senderID" : "2",
-      "forumID": "3",
-      "sendingTime": 1607529955
     }
   ]
 }

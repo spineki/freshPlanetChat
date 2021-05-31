@@ -31,14 +31,12 @@ const { query, mutate } = createTestClient(server);
 
 const cleanUsers = deepCopy(fixtures.users);
 const cleanForums = deepCopy(fixtures.forums);
-const cleanMessages = deepCopy(fixtures.messages);
 /**
  * A function to reset fixture "Database" and make sure test are independants
  */
 function resetDatabase() {
   fixtures.users = deepCopy(cleanUsers);
   fixtures.forums = deepCopy(cleanForums);
-  fixtures.messages = deepCopy(cleanMessages);
 }
 // USERS ----------------------------------------
 
