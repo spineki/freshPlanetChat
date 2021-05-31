@@ -14,7 +14,7 @@ import fixtures from "../src/fixtures/fixtures.json";
  * @param obj - An object to deep copy
  * @returns deepCopied Object
  */
-function deepCopy(obj: any) {
+function deepCopy(obj: unknown) {
   return JSON.parse(JSON.stringify(obj));
 }
 
@@ -324,7 +324,7 @@ describe("Once in a forum, a user can see the list of previous messages", () => 
     expect(data.forum).toEqual({
       messages: [
         {
-          sendingTime: "2020-12-09T16:09:50.000Z",
+          sendingTime: "2021-05-31T05:56:00.000Z",
           text: "message from user2 to forum 2",
         },
       ],
@@ -347,12 +347,12 @@ describe("Once in a forum, a user can see the list of previous messages", () => 
     expect(data.forum).toEqual({
       messages: [
         {
-          sendingTime: "2020-12-09T16:05:55.000Z",
           text: "message from user2 to forum 3",
+          sendingTime: "2021-05-31T05:55:00.000Z",
         },
         {
-          sendingTime: "2020-12-09T16:09:53.000Z",
           text: "message from user1 to forum 3",
+          sendingTime: "2021-05-31T05:57:00.000Z",
         },
       ],
     });
@@ -444,7 +444,7 @@ describe("Once in a forum, a user can see the name and picture of the members of
 describe("Once in a forum, a user can post a message in the forum", () => {
   beforeAll(resetDatabase);
 
-  test("User 2 can fetch messages from forum 3", async () => {
+  test("User 2 can fetch messages from forum 3 with related sendingTime", async () => {
     const GET_ALL_AVAILABLE_MESSAGES = gql`
       query {
         forum(id: "3") {
@@ -454,6 +454,7 @@ describe("Once in a forum, a user can post a message in the forum", () => {
               name
               image
             }
+            sendingTime
           }
         }
       }
@@ -468,6 +469,7 @@ describe("Once in a forum, a user can post a message in the forum", () => {
             name: "userName2",
             image: "/path/to/image/user2",
           },
+          sendingTime: "2021-05-31T05:55:00.000Z",
         },
         {
           text: "message from user1 to forum 3",
@@ -475,6 +477,7 @@ describe("Once in a forum, a user can post a message in the forum", () => {
             name: "userName1",
             image: "/path/to/image/user1",
           },
+          sendingTime: "2021-05-31T05:57:00.000Z",
         },
       ],
     });
@@ -483,13 +486,7 @@ describe("Once in a forum, a user can post a message in the forum", () => {
   test("User 2 can post a message in forum 3", async () => {
     const CREATE_MESSAGE = gql`
       mutation {
-        createMessage(
-          input: {
-            text: "A whole new message"
-            forumID: "3"
-            sendingTime: "2020-12-09T16:09:54.000Z"
-          }
-        ) {
+        createMessage(input: { text: "A whole new message", forumID: "3" }) {
           text
         }
       }

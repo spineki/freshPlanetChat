@@ -19,7 +19,6 @@ export const typeDefs = gql`
   input MessageInput {
     text: String!
     forumID: String!
-    sendingTime: DateTime!
   }
 
   type Message {

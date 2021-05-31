@@ -1,9 +1,32 @@
 import { GraphQLDateTime } from "graphql-scalars";
 import { forums, users } from "../fixtures/fixtures.json";
 
+type MessageType = {
+  text: string;
+  senderID: string;
+  sendingTime: string;
+};
+
+type ForumType = {
+  id: string;
+  name: string;
+  userIDs: Array<string>;
+  messages: Array<MessageType>;
+};
+
+type UserType = {
+  id: string;
+  name: string;
+  image: string;
+};
+
 export const resolvers = {
   Query: {
-    forums(parent: any, args: any, context: { currentUser: any }) {
+    forums(
+      _parent: unknown,
+      _args: unknown,
+      context: { currentUser: UserType }
+    ): Array<ForumType> {
       console.log(">> Query forums");
       // A user must be logged to request the list of forums
       if (!context.currentUser) {
@@ -14,10 +37,10 @@ export const resolvers = {
     },
 
     forum(
-      parent: any,
+      _parent: unknown,
       args: { id: string },
       context: { currentUser: { id: string } }
-    ) {
+    ): ForumType {
       console.log(">> Query forum ", args.id);
       // A user must be logged to request a forum
       if (!context.currentUser) {
@@ -38,7 +61,11 @@ export const resolvers = {
       return matchingForum;
     },
 
-    me(parent: any, args: any, context: { currentUser: { id: string } }) {
+    me(
+      _parent: unknown,
+      _args: unknown,
+      context: { currentUser: { id: string } }
+    ): UserType {
       console.log(">> Query me ", context.currentUser);
       if (!context.currentUser) {
         return null;
@@ -50,10 +77,10 @@ export const resolvers = {
 
   Mutation: {
     createForum(
-      _: any,
+      _parent: unknown,
       { forumName }: { forumName: string },
-      context: { currentUser: { id: any } }
-    ) {
+      context: { currentUser: { id: string } }
+    ): ForumType {
       console.log("== Mutation createForum", forumName);
 
       if (!context.currentUser) {
@@ -78,7 +105,7 @@ export const resolvers = {
           parseInt(forums[0].id)
         );
 
-      const newForum = {
+      const newForum: ForumType = {
         id: newForumID.toString(),
         name: forumName,
         userIDs: [context.currentUser.id],
@@ -91,10 +118,10 @@ export const resolvers = {
     },
 
     joinForumByID(
-      _: any,
+      _parent: unknown,
       { forumID }: { forumID: string },
       context: { currentUser: { id: string } }
-    ) {
+    ): ForumType {
       console.log("== Mutation joinForumByID", forumID);
 
       if (!context.currentUser) {
@@ -118,10 +145,10 @@ export const resolvers = {
     },
 
     joinForumByName(
-      _: any,
+      _parent: unknown,
       { forumName }: { forumName: string },
       context: { currentUser: { id: string } }
-    ) {
+    ): ForumType {
       console.log("== Mutation joinForumByName");
 
       if (!context.currentUser) {
@@ -145,12 +172,12 @@ export const resolvers = {
     },
 
     createMessage(
-      _: any,
+      _parent: unknown,
       {
-        input: { text, forumID, sendingTime },
-      }: { input: { text: string; forumID: string; sendingTime: number } },
+        input: { text, forumID },
+      }: { input: { text: string; forumID: string } },
       context: { currentUser: { id: string } }
-    ) {
+    ): MessageType {
       console.log("== Mutation createMessage");
 
       if (!context.currentUser) {
@@ -169,17 +196,10 @@ export const resolvers = {
         return null;
       }
 
-      // converting date to unix time in second: This choice allows:
-      // - Less space taken in database
-      // - Faster and simpler sorting algorithm
-      const unixSendingTime = parseInt(
-        (new Date(sendingTime).getTime() / 1000).toFixed(0)
-      );
-
       const newMessage = {
         text: text,
         senderID: context.currentUser.id,
-        sendingTime: unixSendingTime,
+        sendingTime: new Date().toISOString(),
       };
 
       // saving to "database"
@@ -193,9 +213,9 @@ export const resolvers = {
   Forum: {
     users(
       parent: { userIDs: Array<string> },
-      args: any,
-      context: { currentUser: { id: any } }
-    ) {
+      args: unknown,
+      context: { currentUser: { id: string } }
+    ): Array<UserType> {
       console.log("Forum => users : parent", parent, context.currentUser.id);
 
       // Here, we return the list of users of this forum
@@ -213,9 +233,9 @@ export const resolvers = {
 
     messages(
       parent: { id: string; userIDs: Array<string> },
-      args: any,
-      context: { currentUser: { id: any } }
-    ) {
+      args: unknown,
+      context: { currentUser: { id: string } }
+    ): Array<MessageType> {
       console.log("Forum Message");
 
       // Here, we return the list of messages of this forum
@@ -234,30 +254,17 @@ export const resolvers = {
       }
 
       // According to the specs, messages should be returned in the newest -> oldest order
-      // Messages are stored in the database in unix time, so we can just sort them this way
-      const sortedMessage = forum.messages.sort(
-        (a, b) => a.sendingTime - b.sendingTime
-      );
-
-      // If dateTimes were stored with string, I would have needed Schwartzian transform
-      // not to spend too much time in sort, converting strings back to Date object to be able to compare them.
-
-      // However, I made the assumption that clients want Date as strings ISO 8601 compliant
-      return sortedMessage.map((message) => {
-        return {
-          ...message,
-          sendingTime: new Date(message.sendingTime * 1000).toISOString(),
-        };
-      });
+      // Messages are stored in our "database" in receiving order so no need to sort them.
+      return forum.messages.sort();
     },
   },
 
   User: {
     forums(
       parent: { id: string },
-      args: any,
+      _args: unknown,
       context: { currentUser: { id: string } }
-    ) {
+    ): Array<ForumType> {
       console.log("User => forums : parent", parent);
       // A user can have access to forums only he targets himself
       if (!context.currentUser || parent.id !== context.currentUser.id) {
@@ -272,7 +279,7 @@ export const resolvers = {
   },
 
   Message: {
-    sender(parent: { senderID: string }, args: any, context: any) {
+    sender(parent: { senderID: string }): UserType {
       console.log("Message sender");
       return users.find((user) => user.id === parent.senderID);
     },
