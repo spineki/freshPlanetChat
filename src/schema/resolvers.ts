@@ -1,24 +1,13 @@
 import { GraphQLDateTime } from "graphql-scalars";
 import { forums, users } from "../fixtures/fixtures.json";
-
-type MessageType = {
-  text: string;
-  senderID: string;
-  sendingTime: string;
-};
-
-type ForumType = {
-  id: string;
-  name: string;
-  memberIDs: Array<string>;
-  messages: Array<MessageType>;
-};
-
-type UserType = {
-  id: string;
-  name: string;
-  image: string;
-};
+import {
+  ForumType,
+  MessageConnectionType,
+  MessageEdgeType,
+  MessageType,
+  PageInfoType,
+  UserType,
+} from "./ts-types";
 
 export const resolvers = {
   Query: {
@@ -27,7 +16,6 @@ export const resolvers = {
       _args: unknown,
       context: { currentUser: UserType }
     ): Array<ForumType> {
-      console.log(">> Query forums");
       // A user must be logged to request the list of forums
       if (!context.currentUser) {
         return null;
@@ -41,7 +29,6 @@ export const resolvers = {
       args: { id: string },
       context: { currentUser: { id: string } }
     ): ForumType {
-      console.log(">> Query forum ", args.id);
       // A user must be logged to request a forum
       if (!context.currentUser) {
         return null;
@@ -66,7 +53,6 @@ export const resolvers = {
       _args: unknown,
       context: { currentUser: { id: string } }
     ): UserType {
-      console.log(">> Query me ", context.currentUser);
       if (!context.currentUser) {
         return null;
       }
@@ -81,8 +67,6 @@ export const resolvers = {
       { input: { forumName } }: { input: { forumName: string } },
       context: { currentUser: { id: string } }
     ): ForumType {
-      console.log("== Mutation createForum", forumName);
-
       if (!context.currentUser) {
         return null;
       }
@@ -122,8 +106,6 @@ export const resolvers = {
       { input: { forumID } }: { input: { forumID: string } },
       context: { currentUser: { id: string } }
     ): ForumType {
-      console.log("== Mutation joinForumByID", forumID);
-
       if (!context.currentUser) {
         return null;
       }
@@ -149,8 +131,6 @@ export const resolvers = {
       { input: { forumName } }: { input: { forumName: string } },
       context: { currentUser: { id: string } }
     ): ForumType {
-      console.log("== Mutation joinForumByName");
-
       if (!context.currentUser) {
         return null;
       }
@@ -178,8 +158,6 @@ export const resolvers = {
       }: { input: { text: string; forumID: string } },
       context: { currentUser: { id: string } }
     ): MessageType {
-      console.log("== Mutation createMessage");
-
       if (!context.currentUser) {
         return null;
       }
@@ -212,12 +190,10 @@ export const resolvers = {
   // Misc Resolvers
   Forum: {
     members(
-      parent: { memberIDs: Array<string> },
+      parent: ForumType,
       _args: unknown,
       context: { currentUser: { id: string } }
     ): Array<UserType> {
-      console.log("Forum => users : parent", parent, context.currentUser.id);
-
       // Here, we return the list of users of this forum
 
       // However, we don't want strangers to have acces to the list of users
@@ -232,11 +208,11 @@ export const resolvers = {
     },
 
     messages(
-      parent: { id: string; memberIDs: Array<string> },
-      _args: unknown,
+      parent: ForumType,
+      args: { first: number; after: number },
       context: { currentUser: { id: string } }
-    ): Array<MessageType> {
-      console.log("Forum Message");
+    ): MessageConnectionType {
+      const { first, after } = args;
 
       // Here, we return the list of messages of this forum
 
@@ -255,18 +231,51 @@ export const resolvers = {
 
       // According to the specs, messages should be returned in the newest -> oldest order
       // Messages are stored in our "database" in receiving order so no need to sort them.
-      // so we just have to revert them
-      return forum.messages.reverse();
+      // so we just have to select the correct pagination, then to revert it
+
+      // if no after given, sent after to 0
+      let messageIndex = 0;
+      if (after !== undefined) {
+        messageIndex = after + 1;
+      }
+
+      const messages = forum.messages.slice(messageIndex, messageIndex + first);
+
+      const startCursor = messages.length > 0 ? messageIndex : null;
+      const endCursor =
+        messages.length > 0 ? messageIndex - 1 + messages.length : null;
+
+      const totalCount = forum.messages.length;
+      const edges: Array<MessageEdgeType> = messages.map((message, index) => {
+        return {
+          cursor: messageIndex + index, // we compute the cursor for every message
+          node: message,
+        };
+      });
+      const pageInfo: PageInfoType = {
+        hasNextPage: endCursor < forum.messages.length - 1,
+        hasPreviousPage: startCursor > 0,
+        startCursor: startCursor,
+        endCursor: endCursor,
+      };
+
+      // Here we revert the computed edges
+      edges.reverse();
+
+      return {
+        totalCount,
+        edges,
+        pageInfo,
+      };
     },
   },
 
   User: {
     forums(
-      parent: { id: string },
+      parent: UserType,
       _args: unknown,
       context: { currentUser: { id: string } }
     ): Array<ForumType> {
-      console.log("User => forums : parent", parent);
       // A user can have access to forums only he targets himself
       if (!context.currentUser || parent.id !== context.currentUser.id) {
         return null;
@@ -280,8 +289,7 @@ export const resolvers = {
   },
 
   Message: {
-    sender(parent: { senderID: string }): UserType {
-      console.log("Message sender");
+    sender(parent: MessageType): UserType {
       return users.find((user) => user.id === parent.senderID);
     },
   },

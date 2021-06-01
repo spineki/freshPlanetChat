@@ -16,6 +16,24 @@ export const typeDefs = gql`
     createMessage(input: createMessageInput!): Message
   }
 
+  ## Pagination -----------------------
+
+  type PageInfo {
+    hasPreviousPage: Boolean!
+    hasNextPage: Boolean!
+    startCursor: Int!
+    endCursor: Int!
+  }
+
+  ## FORUM ----------------------------
+
+  type Forum {
+    id: ID!
+    name: String!
+    members: [User]!
+    messages(first: Int!, after: Int): MessageConnection
+  }
+
   input createForumInput {
     forumName: String!
   }
@@ -28,10 +46,7 @@ export const typeDefs = gql`
     forumName: String!
   }
 
-  input createMessageInput {
-    text: String!
-    forumID: String!
-  }
+  ## MESSAGE --------------------------
 
   type Message {
     text: String!
@@ -39,16 +54,26 @@ export const typeDefs = gql`
     sendingTime: String!
   }
 
+  input createMessageInput {
+    text: String!
+    forumID: String!
+  }
+
+  type MessageConnection {
+    totalCount: Int
+    edges: [MessageEdge]!
+    pageInfo: PageInfo!
+  }
+
+  type MessageEdge {
+    cursor: Int
+    node: Message
+  }
+
+  ## USER -----------------------------
   type User {
     name: String!
     image: String!
     forums: [Forum]
-  }
-
-  type Forum {
-    id: ID!
-    name: String!
-    members: [User]!
-    messages: [Message]!
   }
 `;
