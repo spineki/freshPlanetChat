@@ -1,6 +1,6 @@
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
-import { typeDefs } from "./schema/type_defs";
+import { typeDefs } from "./schema/type-defs";
 import { resolvers } from "./schema/resolvers";
 const PORT = 5000;
 

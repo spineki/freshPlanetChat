@@ -306,7 +306,3 @@ describe("Once in a forum, a user can post a message in the forum", () => {
     });
   });
 });
-
-// - see the name and picture of the members of the forum
-
-// test("")

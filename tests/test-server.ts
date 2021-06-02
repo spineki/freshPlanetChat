@@ -5,7 +5,7 @@
 import { ApolloServer } from "apollo-server-express";
 import { createTestClient } from "apollo-server-testing";
 import { resolvers } from "../src/schema/resolvers";
-import { typeDefs } from "../src/schema/type_defs";
+import { typeDefs } from "../src/schema/type-defs";
 import fixtures from "../src/fixtures/fixtures.json";
 
 /**

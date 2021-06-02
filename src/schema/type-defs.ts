@@ -1,5 +1,29 @@
 import { gql } from "apollo-server-express";
+import { GraphQLScalarType, Kind, ValueNode } from "graphql";
 
+/**
+ * A custom scalar type for DateTimes
+ */
+export const DateTimeScalar = new GraphQLScalarType({
+  name: "DateTime",
+  description: "DateTime custom scalar type compliant with iso 8601",
+  serialize(value: string) {
+    return value; // DB already in string (JSON compliant)
+  },
+  parseValue(value: string) {
+    return value;
+  },
+  parseLiteral(ast: ValueNode) {
+    if (ast.kind === Kind.STRING) {
+      return new Date(ast.value).toISOString(); // Convert hard-coded AST string to integer and then to Date
+    }
+    return null; // Invalid hard-coded value (not an integer)
+  },
+});
+
+/**
+ * SDL declaration of graphql schema
+ */
 export const typeDefs = gql`
   scalar DateTime
 
@@ -66,8 +90,8 @@ export const typeDefs = gql`
   }
 
   type MessageEdge {
-    cursor: Int
-    node: Message
+    cursor: Int!
+    node: Message!
   }
 
   ## USER -----------------------------

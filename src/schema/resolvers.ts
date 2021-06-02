@@ -1,4 +1,3 @@
-import { GraphQLDateTime } from "graphql-scalars";
 import { forums, users } from "../fixtures/fixtures.json";
 import {
   ForumType,
@@ -8,6 +7,7 @@ import {
   PageInfoType,
   UserType,
 } from "./ts-types";
+import { DateTimeScalar } from "./type-defs";
 
 export const resolvers = {
   Query: {
@@ -295,5 +295,5 @@ export const resolvers = {
   },
 
   // Example: 2021-05-31T19:08:12+00:00
-  DateTime: GraphQLDateTime,
+  DateTime: DateTimeScalar,
 };
