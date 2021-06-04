@@ -81,14 +81,14 @@ We can notice here that the requesting user will not receive info if he is accep
 
   ## Membership -----------------------
   """
-  A membership subsription
+  A membership subscription
   """
   type Subscription {
     membershipRequest: Membership
   }
 
   """
-  A MemberShip Request
+  A Membership Request
   """
   type Membership {
     memberId: ID!
@@ -96,9 +96,9 @@ We can notice here that the requesting user will not receive info if he is accep
   }
 
   """
-
+  Required fields to acceptMembership
   """
-  type acceptMembership{
+  type acceptMembershipInput{
     memberId: ID!
     forumId: ID!
   }
