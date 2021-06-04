@@ -1,5 +1,5 @@
 /**
- * This files aims to give a suit of tests ensuring the specs given by freshplanet
+ * This files aims to give a suit of tests verifying the specs given by freshplanet
  *
  * Behaviour tested: forum and messages interactions
  */

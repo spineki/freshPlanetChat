@@ -1,3 +1,7 @@
+/**
+ * This file defines resolvers logic.
+ */
+
 import { forums, users } from "../fixtures/fixtures.json";
 import {
   ForumType,
@@ -20,6 +24,9 @@ export const resolvers = {
       if (!context.currentUser) {
         return null;
       }
+
+      // extra filtering could be used here for part 2, for example by filtering out
+      // an extra forum.isPrivate field
 
       return forums;
     },
@@ -71,7 +78,7 @@ export const resolvers = {
         return null;
       }
 
-      // First, we verify if a forum is having the same name already exists
+      // First, we verify if a forum having the same name already exists
       const alreadyExistingForumIndex = forums.findIndex(
         (forum) => forum.name === forumName
       );
@@ -89,6 +96,7 @@ export const resolvers = {
           parseInt(forums[0].id)
         );
 
+      // finally, we add the userId to the new Forum
       const newForum: ForumType = {
         id: newForumID.toString(),
         name: forumName,
@@ -147,7 +155,6 @@ export const resolvers = {
         forums[forumIndex].memberIDs.push(context.currentUser.id);
       }
 
-      // returning it allows user to chain query info with forum
       return forums[forumIndex];
     },
 
@@ -174,6 +181,7 @@ export const resolvers = {
         return null;
       }
 
+      // The sendingTime is filled with the current time, converted to ISO standard
       const newMessage = {
         text: text,
         senderID: context.currentUser.id,
@@ -231,9 +239,9 @@ export const resolvers = {
 
       // According to the specs, messages should be returned in the newest -> oldest order
       // Messages are stored in our "database" in receiving order so no need to sort them.
-      // so we just have to select the correct pagination, then to revert it
+      // We just have to select the correct pagination, then to revert it
 
-      // if no after given, sent after to 0
+      // if no "after" given, sent after to 0
       let messageIndex = 0;
       if (after !== undefined) {
         messageIndex = after + 1;
@@ -259,7 +267,7 @@ export const resolvers = {
         endCursor: endCursor,
       };
 
-      // Here we revert the computed edges
+      // Here we revert the computed edges to match requested output order
       edges.reverse();
 
       return {
@@ -290,6 +298,7 @@ export const resolvers = {
 
   Message: {
     sender(parent: MessageType): UserType {
+      // We return the user of the current message
       return users.find((user) => user.id === parent.senderID);
     },
   },
