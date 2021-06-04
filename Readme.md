@@ -37,75 +37,200 @@ I provide below the full retrieved schema, but
 are not shown here because they were automatically created by apollo. (The SDL file can be found under `src/schema/type-defs.ts`)
 
 ```gql
-# DateTime custom scalar type compliant with iso 8601
-scalar DateTime
+  """
+  DateTime custom scalar type compliant with iso 8601
+  """
+  scalar DateTime
 
-type Query {
-  forums: [Forum]!
-  forum(id: ID!): Forum
-  me: User
-}
+  """
+  The schema's root query type
+  """
+  type Query {
+    """
+    Retrieve all existing forums
+    """
+    forums: [Forum]!
 
-type Mutation {
-  createForum(input: createForumInput!): Forum
-  joinForumByID(input: joinForumByIDInput!): Forum
-  joinForumByName(input: joinForumByNameInput!): Forum
-  createMessage(input: createMessageInput!): Message
-}
+    """
+    Retrieve forum having a specific ID
+    """
+    forum(id: ID!): Forum
 
-type PageInfo {
-  hasPreviousPage: Boolean!
-  hasNextPage: Boolean!
-  startCursor: Int!
-  endCursor: Int!
-}
+    """
+    Retrieve the current logged User
+    """
+    me: User
+  }
 
-type Forum {
-  id: ID!
-  name: String!
-  members: [User]!
-  messages(first: Int!, after: Int): MessageConnection
-}
+  """
+  The schema's root mutation type
+  """
+  type Mutation {
+    """
+    Create a new Forum if it doesn't already exist
+    """
+    createForum(input: createForumInput!): Forum
 
-input createForumInput {
-  forumName: String!
-}
+    """
+    Join an existing forum having the given ID
+    """
+    joinForumByID(input: joinForumByIDInput!): Forum
 
-input joinForumByIDInput {
-  forumID: ID!
-}
+    """
+    Join an existing forum having the given Name
+    """
+    joinForumByName(input: joinForumByNameInput!): Forum
 
-input joinForumByNameInput {
-  forumName: String!
-}
+    """
+    create a new message
+    """
+    createMessage(input: createMessageInput!): Message
+  }
 
-type Message {
-  text: String!
-  sender: User!
-  sendingTime: String!
-}
+  ## Pagination -----------------------
 
-input createMessageInput {
-  text: String!
-  forumID: String!
-}
+  """
+  Page Information to perform cursor-based pagination
+  """
+  type PageInfo {
+    """
+    True if a previous page exits
+    """
+    hasPreviousPage: Boolean!
 
-type MessageConnection {
-  totalCount: Int
-  edges: [MessageEdge]!
-  pageInfo: PageInfo!
-}
+    """
+    True if a next page exists
+    """
+    hasNextPage: Boolean!
 
-type MessageEdge {
-  cursor: Int!
-  node: Message!
-}
+    """
+    Cursor of the first node returned
+    """
+    startCursor: Int!
 
-type User {
-  name: String!
-  image: String!
-  forums: [Forum]
-}
+    """
+    Cursor of the last node returned
+    """
+    endCursor: Int!
+  }
+
+  ## FORUM ----------------------------
+
+  """
+  A Forum
+  """
+  type Forum {
+    id: ID!
+    name: String!
+    """
+    Members of this Forum
+    """
+    members: [User]!
+    """
+    A cursor-based navigation object to paginate over forum messages
+    """
+    messages(first: Int!, after: Int): MessageConnection
+  }
+
+  """
+  Required fields to createForum
+  """
+  input createForumInput {
+    forumName: String!
+  }
+
+  """
+  Required fields to joinForumByID
+  """
+  input joinForumByIDInput {
+    forumID: ID!
+  }
+
+  """
+  Required fields to joinForumByName
+  """
+  input joinForumByNameInput {
+    forumName: String!
+  }
+
+  ## MESSAGE --------------------------
+
+  """
+  A message
+  """
+  type Message {
+    text: String!
+    sender: User!
+    """
+    The sending time of this message, computed when the message reaches the server
+    """
+    sendingTime: String!
+  }
+
+  """
+  Required fields to createMessage
+  """
+  input createMessageInput {
+    """
+    The text content of the message
+    """
+    text: String!
+    """
+    The forumId of the forum targeted by this message
+    """
+    forumID: String!
+  }
+
+  """
+  A connection object for a cursor-based pagniation over Messages
+  """
+  type MessageConnection {
+    """
+    Total number of messages
+    """
+    totalCount: Int
+
+    """
+    Edge for a cursor-based pagination over messages
+    """
+    edges: [MessageEdge]!
+
+    """
+    Info to paginate over received mesages
+    """
+    pageInfo: PageInfo!
+  }
+
+  """
+  Edge for a cursor-based pagination over messages
+  """
+  type MessageEdge {
+    """
+    The cursor identifying a single message
+    """
+    cursor: Int!
+
+    """
+    Node containing a single Message
+    """
+    node: Message!
+  }
+
+  ## USER -----------------------------
+  """
+  A user
+  """
+  type User {
+    name: String!
+    """
+    Avatar
+    """
+    image: String!
+    """
+    The list of forums where this user is a member
+    """
+    forums: [Forum]
+  }
 ```
 
 
